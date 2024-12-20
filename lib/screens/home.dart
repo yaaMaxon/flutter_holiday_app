@@ -1,97 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../components/action_button.dart';
 import '../components/holiday_list.dart';
-import '../services/api_service.dart';
-import '../services/cache_service.dart';
+import '../cubit/holiday_cubit.dart';
 
-class HomePage extends StatefulWidget {
-  @override
-  _HomePageState createState() => _HomePageState();
-}
-
-class _HomePageState extends State<HomePage> {
-  late ConnectivityResult _connectivityResult;
-  late Stream<ConnectivityResult> _connectivityStream;
-  final ApiService apiService = ApiService();
-  final CacheService cacheService = CacheService();
-  late Future<List<Map<String, dynamic>>> holidaysFuture;
-
-  @override
-  void initState() {
-    super.initState();
-    _connectivityStream = Connectivity().onConnectivityChanged;
-    _initializeConnectivity();
-    holidaysFuture = _loadHolidays();
-  }
-
-  Future<void> _initializeConnectivity() async {
-    _connectivityResult = await Connectivity().checkConnectivity();
-    if (_connectivityResult == ConnectivityResult.none) {
-      _showNetworkError();
-    }
-    _connectivityStream.listen((result) {
-      if (result == ConnectivityResult.none) {
-        _showNetworkError();
-      }
-    });
-  }
-
-  Future<List<Map<String, dynamic>>> _loadHolidays() async {
-    try {
-      final holidays = await apiService.fetchHolidays();
-      await cacheService.saveHolidays(holidays);
-      return holidays;
-    } catch (e) {
-      final cachedHolidays = await cacheService.getHolidays();
-      if (cachedHolidays != null) {
-        return List<Map<String, dynamic>>.from(cachedHolidays);
-      } else {
-        throw Exception('No internet and no cached data');
-      }
-    }
-  }
-
-  void _showNetworkError() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text(
-          'No Internet Connection',
-          style: TextStyle(
-            color: Colors.red,
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
-        ),
-        content: const Text(
-          'Your connection to the internet has been lost. Please reconnect to continue.',
-          style: TextStyle(
-            color: Colors.black54,
-            fontSize: 16,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: const Text(
-              'OK',
-              style: TextStyle(
-                color: Colors.blue,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+class HomePage extends StatelessWidget {
+  const HomePage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    context.read<HolidayCubit>().fetchHolidays();
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -141,7 +60,24 @@ class _HomePageState extends State<HomePage> {
               ),
               const SizedBox(height: 20),
               Expanded(
-                child: HolidayList(holidaysFuture: holidaysFuture),
+                child: BlocBuilder<HolidayCubit, HolidayState>(
+                  builder: (context, state) {
+                    if (state is HolidayLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (state is HolidayLoaded) {
+                      return HolidayList(holidays: state.holidays);
+                    } else if (state is HolidayError) {
+                      return Center(
+                        child: Text(
+                          'Error: ${state.message}',
+                          style:
+                              const TextStyle(color: Colors.red, fontSize: 16),
+                        ),
+                      );
+                    }
+                    return const Center(child: Text('No holidays available'));
+                  },
+                ),
               ),
               const SizedBox(height: 20),
               Center(

@@ -17,8 +17,8 @@ class _ProfilePageState extends State<ProfilePage> {
   final UserRepositoryImpl userRepository = UserRepositoryImpl();
   late ConnectivityResult _connectivityResult;
 
-  String userName = 'User Name';
-  String userEmail = 'user@example.com';
+  String userName = "User Name";
+  String userEmail = "user@example.com";
 
   @override
   void initState() {
@@ -101,7 +101,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.teal[200], // Змінений колір фону на teal
+      backgroundColor: Colors.teal[200], // Колір фону збережено
       appBar: AppBar(
         title: Text(
           'Profile',
@@ -111,7 +111,7 @@ class _ProfilePageState extends State<ProfilePage> {
             color: Colors.white,
           ),
         ),
-        backgroundColor: Colors.teal,
+        backgroundColor: Colors.teal, // Колір AppBar збережено
         elevation: 6,
         centerTitle: true,
       ),
@@ -125,7 +125,7 @@ class _ProfilePageState extends State<ProfilePage> {
               style: TextStyle(
                 fontSize: 32,
                 fontWeight: FontWeight.bold,
-                color: Colors.teal[800],
+                color: Colors.teal[800], // Колір тексту збережено
               ),
             ),
             const SizedBox(height: 20),
@@ -155,7 +155,7 @@ class _ProfilePageState extends State<ProfilePage> {
             Center(
               child: ActionButton(
                 text: 'Logout',
-                color: Colors.teal, // Залишити без змін
+                color: Colors.teal, // Колір кнопки залишено
                 textColor: Colors.white,
                 onPressed: _handleLogout,
               ),
@@ -164,7 +164,7 @@ class _ProfilePageState extends State<ProfilePage> {
             Center(
               child: ActionButton(
                 text: 'Delete Account',
-                color: Colors.red, // Залишити без змін
+                color: Colors.red, // Колір кнопки залишено
                 textColor: Colors.white,
                 onPressed: _handleDeleteAccount,
               ),
@@ -173,7 +173,7 @@ class _ProfilePageState extends State<ProfilePage> {
             Center(
               child: ActionButton(
                 text: 'Return to Home',
-                color: Colors.green,
+                color: Colors.green, // Колір кнопки залишено
                 textColor: Colors.white,
                 onPressed: () {
                   Navigator.pushNamed(context, '/home');
