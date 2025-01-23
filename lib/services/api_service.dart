@@ -7,8 +7,15 @@ class ApiService {
   Future<List<Map<String, dynamic>>> fetchHolidays() async {
     final http.Response response = await http.get(Uri.parse(baseUrl));
     if (response.statusCode == 200) {
-      final Map<String, dynamic> data = json.decode(response.body);
-      final List<dynamic> holidays = data['england-and-wales']['events'];
+      // Чітко вказуємо, що `json.decode` повертає `Map<String, dynamic>`.
+      final Map<String, dynamic> data =
+          json.decode(response.body) as Map<String, dynamic>;
+
+      // Вказуємо, що `data['england-and-wales']['events']` має тип `List<dynamic>`.
+      final List<dynamic> holidays =
+          data['england-and-wales']['events'] as List<dynamic>;
+
+      // Конвертуємо `List<dynamic>` у `List<Map<String, dynamic>>`.
       return holidays.map((e) => e as Map<String, dynamic>).toList();
     } else {
       throw Exception('Failed to fetch holidays');
